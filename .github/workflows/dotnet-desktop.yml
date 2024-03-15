@@ -30,8 +30,8 @@ jobs:
     - name: Install and start Mosquitto
       run: |
         choco install mosquitto -y
-        mosquitto
-
+        "C:\Program Files\mosquitto\mosquitto.exe"
+        
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v4
