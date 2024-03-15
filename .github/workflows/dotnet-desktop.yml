@@ -45,7 +45,7 @@ jobs:
     # Build LibraryService and publish it as an artifact
     - name: Build and publish LibraryService
       run: |
-        $msbuildPath = "${{ env.MSBUILD_PATH }}\MSBuild.exe"
+        $msbuildPath = Get-Command MSBuild.exe | Select-Object -ExpandProperty Source
         & "$msbuildPath" /t:restore
         & "$msbuildPath" /t:build /p:Configuration=${{ matrix.configuration }}
         mkdir LibraryServiceArtifact
@@ -55,7 +55,7 @@ jobs:
     # Start the Mosquitto service
     - name: Start Mosquitto service
       run: |
-        "C:\Program Files\mosquitto\mosquitto.exe"
+        "C:\Program Files\mosquitto\mosquitto.exe" -d
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
