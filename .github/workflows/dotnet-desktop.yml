@@ -1,0 +1,64 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: LoggingService.sln
+      Test_Project_Path: UnitTests\UnitTests.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install Mosquitto and start the service
+    - name: Install and start Mosquitto
+      run: |
+        choco install mosquitto -y
+        mosquitto
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Add MSBuild to the PATH
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    # Build LibraryService and publish it as an artifact
+    - name: Build and publish LibraryService
+      run: |
+        msbuild /t:restore
+        msbuild /t:build /p:Configuration=${{ matrix.configuration }}
+        mkdir LibraryServiceArtifact
+        cp -r LibraryService/bin/${{ matrix.configuration }}/* LibraryServiceArtifact/
+      working-directory: ${{ github.workspace }}
+      shell: bash
+
+      # Publish LibraryServiceArtifact as an artifact
+    - name: Publish LibraryServiceArtifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: LibraryServiceArtifact
+        path: LibraryServiceArtifact
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test
