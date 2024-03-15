@@ -26,11 +26,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Install Mosquitto and start the service
     - name: Install and start Mosquitto
       run: |
+        # Try installing Mosquitto via Chocolatey
         choco install mosquitto -y
-        "C:\Program Files\mosquitto\mosquitto.exe"
+
+        # If installation via Chocolatey fails, download and install manually
+        if ($LASTEXITCODE -ne 0) {
+          Invoke-WebRequest -Uri "https://mosquitto.org/files/..." -OutFile "mosquitto-setup.exe"
+          Start-Process -FilePath "mosquitto-setup.exe" -ArgumentList "/S" -Wait
+        }
         
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -52,12 +57,17 @@ jobs:
       working-directory: ${{ github.workspace }}
       shell: bash
 
-      # Publish LibraryServiceArtifact as an artifact
+    # Publish LibraryServiceArtifact as an artifact
     - name: Publish LibraryServiceArtifact
       uses: actions/upload-artifact@v2
       with:
         name: LibraryServiceArtifact
         path: LibraryServiceArtifact
+
+    # Start the Mosquitto service
+    - name: Start Mosquitto service
+      run: |
+        "C:\Program Files\mosquitto\mosquitto.exe"
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
