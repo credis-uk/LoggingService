@@ -45,19 +45,12 @@ jobs:
     # Build LibraryService and publish it as an artifact
     - name: Build and publish LibraryService
       run: |
-        msbuild /t:restore
-        msbuild /t:build /p:Configuration=${{ matrix.configuration }}
+        $msbuildPath = "${{ env.MSBUILD_PATH }}\MSBuild.exe"
+        & "$msbuildPath" /t:restore
+        & "$msbuildPath" /t:build /p:Configuration=${{ matrix.configuration }}
         mkdir LibraryServiceArtifact
         cp -r LibraryService/bin/${{ matrix.configuration }}/* LibraryServiceArtifact/
       working-directory: ${{ github.workspace }}
-      shell: bash
-
-    # Publish LibraryServiceArtifact as an artifact
-    - name: Publish LibraryServiceArtifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: LibraryServiceArtifact
-        path: LibraryServiceArtifact
 
     # Start the Mosquitto service
     - name: Start Mosquitto service
