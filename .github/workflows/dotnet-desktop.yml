@@ -56,7 +56,7 @@ jobs:
     # Start the Mosquitto service
     - name: Start Mosquitto service
       run: |
-        "C:\Program Files\mosquitto\mosquitto.exe" -d
+        "C:\Program Files\mosquitto\mosquitto.exe -d"
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
