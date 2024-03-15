@@ -29,7 +29,7 @@ jobs:
     - name: Install Mosquitto
       run: |
         # Try installing Mosquitto 
-        Invoke-WebRequest -Uri "https://mosquitto.org/files/..." -OutFile "mosquitto-setup.exe"
+        Invoke-WebRequest -Uri "https://mosquitto.org/files/binary/win64/mosquitto-2.0.9a-install-windows-x64.exe" -OutFile "mosquitto-setup.exe"
         Start-Process -FilePath "mosquitto-setup.exe" -ArgumentList "/S" -Wait
         
     # Install the .NET Core workload
