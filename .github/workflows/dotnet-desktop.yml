@@ -49,8 +49,8 @@ jobs:
         $msbuildPath = Get-Command MSBuild.exe | Select-Object -ExpandProperty Source
         & "$msbuildPath" /t:restore
         & "$msbuildPath" /t:build /p:Configuration=${{ matrix.configuration }}
-        mkdir LibraryServiceArtifact
-        cp -r LibraryService/bin/${{ matrix.configuration }}/* LibraryServiceArtifact/
+        mkdir LoggingServiceArtifact
+        cp -r LoggingService/bin/${{ matrix.configuration }}/* LoggingServiceArtifact/
       working-directory: ${{ github.workspace }}
 
     # Start the Mosquitto service
