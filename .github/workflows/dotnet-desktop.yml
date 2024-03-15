@@ -26,16 +26,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install and start Mosquitto
+    - name: Install Mosquitto
       run: |
-        # Try installing Mosquitto via Chocolatey
-        choco install mosquitto -y
-
-        # If installation via Chocolatey fails, download and install manually
-        if ($LASTEXITCODE -ne 0) {
-          Invoke-WebRequest -Uri "https://mosquitto.org/files/..." -OutFile "mosquitto-setup.exe"
-          Start-Process -FilePath "mosquitto-setup.exe" -ArgumentList "/S" -Wait
-        }
+        # Try installing Mosquitto 
+        Invoke-WebRequest -Uri "https://mosquitto.org/files/..." -OutFile "mosquitto-setup.exe"
+        Start-Process -FilePath "mosquitto-setup.exe" -ArgumentList "/S" -Wait
         
     # Install the .NET Core workload
     - name: Install .NET Core
