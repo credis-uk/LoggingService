@@ -35,11 +35,10 @@ jobs:
         Invoke-WebRequest -Uri $mosquittoUrl -OutFile "$env:TEMP\mosquitto.exe"
 
     # Run the Mqtt Broker for unit tests
-    - name: Run Mosquitto installer
+    - name: Run Mosquitto MQTT Broker
       run: |
-        $logFilePath = "$env:TEMP\mosquitto.log"
-        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S /D=$env:TEMP /LOG=$logFilePath" -Wait
-        Get-Content $logFilePath
+        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
+        Get-Service -Name mosquitto
         
     # Install the .NET Core workload
     - name: Install .NET Core
