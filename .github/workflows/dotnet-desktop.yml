@@ -17,8 +17,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: LoggingService.sln
-      Test_Project_Path: UnitTests\UnitTests.csproj
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
     - name: Checkout
@@ -26,12 +27,6 @@ jobs:
       with:
         fetch-depth: 0
         submodules: 'recursive'
-
-    - name: Install Mosquitto
-      run: |
-        # Try installing Mosquitto 
-        Invoke-WebRequest -Uri "https://mosquitto.org/files/binary/win64/mosquitto-2.0.9a-install-windows-x64.exe" -OutFile "mosquitto-setup.exe"
-        Start-Process -FilePath "mosquitto-setup.exe" -ArgumentList "/S" -Wait
         
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -43,8 +38,8 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 
-    # Build LibraryService and publish it as an artifact
-    - name: Build and publish LibraryService
+    # Build LoggingService
+    - name: Build and publish LoggingService
       run: |
         $msbuildPath = Get-Command MSBuild.exe | Select-Object -ExpandProperty Source
         & "$msbuildPath" /t:restore
@@ -53,11 +48,32 @@ jobs:
         cp -r LoggingService/bin/${{ matrix.configuration }}/* LoggingServiceArtifact/
       working-directory: ${{ github.workspace }}
 
-    # Start the Mosquitto service
-    - name: Start Mosquitto service
+    # Publish the LoggingService artifact
+    - name: Publish LoggingService Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: LoggingService
+        path: LoggingServiceArtifact
+
+    # Download Mosquitto
+    - name: Download Mosquitto installer
       run: |
-        "C:\Program Files\mosquitto\mosquitto.exe -d"
+        $mosquittoUrl = "https://mosquitto.org/files/binary/win64/mosquitto-2.0.12-install-windows-x64.exe"
+        Invoke-WebRequest -Uri $mosquittoUrl -OutFile "$env:TEMP\mosquitto.exe"
+
+    # Run the Mqtt Broker for unit tests
+    - name: Run Mosquitto installer
+      run: |
+        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
       run: dotnet test
+
+    # Static Analysis
+    - name: Run static analysis with SonarQube
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.login="${{ env.SONAR_TOKEN }}"
+        dotnet build
+        dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
