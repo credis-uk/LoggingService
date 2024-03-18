@@ -62,29 +62,8 @@ jobs:
     - name: Execute unit tests
       run: dotnet test
 
-    # Setup Java 17 for Static Analysis
-    - name: Download Java 17
-      run: |
-        wget https://download.java.net/java/GA/jdk17.0.2/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz
-        tar -xvf openjdk-17.0.2_linux-x64_bin.tar.gz
-
-    - name: Move Java 17 to /usr/lib/jvm
-      run: |
-        sudo mkdir -p /usr/lib/jvm
-        sudo mv jdk-17.0.2 /usr/lib/jvm/
-
-    - name: Set JAVA_HOME and PATH
-      run: |
-        echo "export JAVA_HOME=/usr/lib/jvm/jdk-17.0.2" >> $GITHUB_ENV
-        echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> $GITHUB_ENV
-
-    - name: Update alternatives
-      run: |
-        sudo update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 1
-        sudo update-alternatives --set java $JAVA_HOME/bin/java
-
-    - name: Verify Java version
-      run: java -version
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2.1.1
 
     # Static Analysis
     - name: Run static analysis with SonarCloud
