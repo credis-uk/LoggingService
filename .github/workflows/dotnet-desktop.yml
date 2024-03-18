@@ -27,6 +27,17 @@ jobs:
       with:
         fetch-depth: 0
         submodules: 'recursive'
+
+    # Download Mosquitto
+    - name: Download Mosquitto installer
+      run: |
+        $mosquittoUrl = "https://mosquitto.org/files/binary/win64/mosquitto-2.0.12-install-windows-x64.exe"
+        Invoke-WebRequest -Uri $mosquittoUrl -OutFile "$env:TEMP\mosquitto.exe"
+
+    # Run the Mqtt Broker for unit tests
+    - name: Run Mosquitto installer
+      run: |
+        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
         
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -54,17 +65,6 @@ jobs:
       with:
         name: LoggingService
         path: LoggingServiceArtifact
-
-    # Download Mosquitto
-    - name: Download Mosquitto installer
-      run: |
-        $mosquittoUrl = "https://mosquitto.org/files/binary/win64/mosquitto-2.0.12-install-windows-x64.exe"
-        Invoke-WebRequest -Uri $mosquittoUrl -OutFile "$env:TEMP\mosquitto.exe"
-
-    # Run the Mqtt Broker for unit tests
-    - name: Run Mosquitto installer
-      run: |
-        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
