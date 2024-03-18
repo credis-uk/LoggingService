@@ -37,7 +37,9 @@ jobs:
     # Run the Mqtt Broker for unit tests
     - name: Run Mosquitto installer
       run: |
-        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
+        $logFilePath = "$env:TEMP\mosquitto.log"
+        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S /D=$env:TEMP /LOG=$logFilePath" -Wait
+        Get-Content $logFilePath
         
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -50,7 +52,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     # Build LoggingService
-    - name: Build and publish LoggingService
+    - name: Build LoggingService
       run: |
         $msbuildPath = Get-Command MSBuild.exe | Select-Object -ExpandProperty Source
         & "$msbuildPath" /t:restore
