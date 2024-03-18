@@ -65,8 +65,9 @@ jobs:
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v2.1.1
       with:
-        projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-        organization: ${{ secrets.SONAR_ORG_KEY }}
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }}
 
     # Static Analysis
     - name: Run static analysis with SonarCloud
