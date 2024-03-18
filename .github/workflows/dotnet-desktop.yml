@@ -65,6 +65,8 @@ jobs:
     # Static Analysis
     - name: Run static analysis with SonarCloud
       run: |
+        sudo apt update
+        java --version
         dotnet tool install --global dotnet-sonarscanner
         dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.login="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}"
         dotnet build
