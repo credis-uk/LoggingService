@@ -28,17 +28,16 @@ jobs:
         fetch-depth: 0
         submodules: 'recursive'
 
-    # Download Mosquitto
-    - name: Download Mosquitto installer
-      run: |
-        $mosquittoUrl = "https://mosquitto.org/files/binary/win64/mosquitto-2.0.12-install-windows-x64.exe"
-        Invoke-WebRequest -Uri $mosquittoUrl -OutFile "$env:TEMP\mosquitto.exe"
-
-    # Run the Mqtt Broker for unit tests
-    - name: Run Mosquitto MQTT Broker
-      run: |
-        Start-Process -FilePath "$env:TEMP\mosquitto.exe" -ArgumentList "/S" -Wait
-        Get-Service -Name mosquitto
+    # Start MQTT Broker for unit tests
+    - name: Mosquitto MQTT Broker in GitHub Actions
+      uses: Namoshek/mosquitto-github-action@v1
+      with:
+        version: "latest"
+        ports: "1883:1883"
+        certificates: ""
+        config: ""
+        password-file: ""
+        container-name: "mosquitto"
         
     # Install the .NET Core workload
     - name: Install .NET Core
