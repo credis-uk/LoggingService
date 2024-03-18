@@ -14,7 +14,7 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     env:
       SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -28,16 +28,12 @@ jobs:
         fetch-depth: 0
         submodules: 'recursive'
 
-    # Start MQTT Broker for unit tests
-    - name: Mosquitto MQTT Broker in GitHub Actions
-      uses: Namoshek/mosquitto-github-action@v1
-      with:
-        version: "latest"
-        ports: "1883:1883"
-        certificates: ""
-        config: ""
-        password-file: ""
-        container-name: "mosquitto"
+    # Install Mosquitto and start the broker
+    - name: Install and start Mosquitto
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mosquitto mosquitto-clients
+        sudo service mosquitto start
         
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -45,17 +41,12 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    # Add MSBuild to the PATH
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
-
     # Build LoggingService
     - name: Build LoggingService
       run: |
-        $msbuildPath = Get-Command MSBuild.exe | Select-Object -ExpandProperty Source
-        & "$msbuildPath" /t:restore
-        & "$msbuildPath" /t:build /p:Configuration=${{ matrix.configuration }}
-        mkdir LoggingServiceArtifact
+        dotnet restore
+        dotnet build --configuration ${{ matrix.configuration }}
+        mkdir -p LoggingServiceArtifact
         cp -r LoggingService/bin/${{ matrix.configuration }}/* LoggingServiceArtifact/
       working-directory: ${{ github.workspace }}
 
