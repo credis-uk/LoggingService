@@ -61,6 +61,13 @@ jobs:
     # Execute all unit tests in the solution
     - name: Execute unit tests
       run: dotnet test
+
+    # Download the correct version of Java for Sonar Cloud
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'zulu'
         
     # Static Analysis
     - name: Run static analysis with SonarQube
