@@ -74,7 +74,7 @@ jobs:
       run: |
         dotnet tool install --global dotnet-sonarscanner
         dotnet tool install --global dotnet-coverage
-        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}" /d:sonar.projectBaseDir="${{ github.workspace }} /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml"
+        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}" /d:sonar.projectBaseDir="${{ github.workspace }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
         dotnet build --no-incremental
         dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
         dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
