@@ -62,17 +62,34 @@ jobs:
     - name: Execute unit tests
       run: dotnet test
 
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v2.1.1
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
       with:
-        args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORG_KEY }}
-
-    # Static Analysis
-    - name: Run static analysis with SonarCloud
+        path: ~\sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+          
+    - name: Cache SonarCloud scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v3
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+          
+    - name: Install SonarCloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: pwsh
       run: |
-        dotnet tool install --global dotnet-sonarscanner
-        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.login="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}"
+        New-Item -Path .\.sonar\scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+        
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: pwsh
+      run: |
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"credis-uk_LoggingService" /o:"credis-uk" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
         dotnet build
-        dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
