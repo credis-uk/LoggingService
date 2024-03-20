@@ -62,7 +62,7 @@ namespace UnitTests
             }
         }
 
-        private void ValidateLogFile(LogLevel level, string message, string stacktrace)
+        private static void ValidateLogFile(LogLevel level, string message, string stacktrace)
         {
             var logFiles = Directory.GetFiles(LOGS_FOLDER);
             Assert.AreEqual(1, logFiles.Length);
