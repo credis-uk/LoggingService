@@ -73,6 +73,6 @@ jobs:
     - name: Run static analysis with SonarQube
       run: |
         dotnet tool install --global dotnet-sonarscanner
-        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}"
+        dotnet sonarscanner begin /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /o:"${{ env.SONAR_ORG_KEY }}" /d:sonar.tests="../UnitTests" /d:sonar.inclusions="../UnitTests/**/*"
         dotnet build
         dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
