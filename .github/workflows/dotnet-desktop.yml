@@ -60,7 +60,7 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --logger:"nunit;LogFilePath=test-results.xml" --results-directory=TestResults
+      run: dotnet test --logger:"trx;LogFileName=test-results.xml" --results-directory=TestResults
 
     # Download the correct version of Java for Sonar Cloud
     - name: Set up JDK 17
